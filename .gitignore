@@ -1,0 +1,5 @@
+.vscode
+.DS_Store
+google-api-creds.json
+output/*
+**/__pycache__/
