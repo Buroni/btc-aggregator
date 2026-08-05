@@ -5,6 +5,15 @@ from .utils import get_prev_block_and_mrkl_root, get_difficulty_target
 import csv
 import re
 
+VALUE_FOR_LABEL = (
+    "//div[normalize-space(text())=$label]"
+    "/ancestor::div[following-sibling::div][1]"
+    "/following-sibling::div[1]"
+)
+
+def get_value_from_response(response, label):
+    return response.xpath(VALUE_FOR_LABEL, label=label).xpath("normalize-space(.)").get()
+
 class BlockchainSpider(scrapy.Spider):
     name = "blockchain"
     allowed_domains = ["blockchain.com"]
@@ -47,7 +56,7 @@ class BlockchainSpider(scrapy.Spider):
 
       self.log_row(meta)
 
-      with open("blockchain_out.csv", "a", newline="\n") as f_write:
+      with open("../output/blockchain_out.csv", "a", newline="\n") as f_write:
         writer = csv.writer(f_write, delimiter=",")
 
         row = [
@@ -62,9 +71,8 @@ class BlockchainSpider(scrapy.Spider):
         ]
 
         for col in blockchain_com_cols:
-          xpath = self.get_xpath(col)
           try:
-            raw_value = selector.xpath(xpath).get()
+            raw_value = get_value_from_response(selector, col)
             value = self.format_value(raw_value, col)
             row.append(value)
 
@@ -73,7 +81,7 @@ class BlockchainSpider(scrapy.Spider):
             elif col == 'Difficulty':
               difficulty = value
           except:
-            self.log(f'Error parsing column {col}, value {value}')
+            self.log(f'Error parsing column {col}, value {raw_value}')
             raise
 
         prev_block_and_mrkl_root = get_prev_block_and_mrkl_root(height)
@@ -88,9 +96,6 @@ class BlockchainSpider(scrapy.Spider):
       hash = meta.get('hash')
       idx = meta.get('idx')
       self.log(f'Parsing block {hash}; row {idx}')
-
-    def get_xpath(self, row):
-      return f"//div[@class='{row_div_class}'][.//div[text()='{row}']]//div[@class='{value_div_class}']/text()[2]"
 
     def format_value(self, value, row):
       if row == "Version":

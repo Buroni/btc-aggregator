@@ -1,10 +1,3 @@
-# Class of the div encompassing each data row on the blockchain page.
-# Note this may change if website is updated.
-row_div_class = 'sc-9af3ec78-2 hYPCfn'
-
-# Class of the div containing the value of the row
-value_div_class = 'sc-3391354d-2 gOhep'
-
 # Previous block hash for block 0 (no previous hash defaults to all zeroes)
 default_prev_block_hash = '0000000000000000000000000000000000000000000000000000000000000000'
 

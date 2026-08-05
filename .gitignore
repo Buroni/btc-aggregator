@@ -1,5 +1,6 @@
 .vscode
 .DS_Store
+.venv
 google-api-creds.json
 output/*
 **/__pycache__/

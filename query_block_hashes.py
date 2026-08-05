@@ -1,7 +1,7 @@
 from google.cloud import bigquery
 import csv
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "`google-api-creds.json`"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "google-api-creds.json"
 
 OUT_PATH = 'output/hash_query_out.csv'
 
