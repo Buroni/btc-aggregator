@@ -1,9 +1,12 @@
 import scrapy
 from scrapy.selector import Selector
-from .data import blockchain_com_cols, row_div_class, value_div_class, csv_header
+from .data import blockchain_com_cols, csv_header
 from .utils import get_prev_block_and_mrkl_root, get_difficulty_target
 import csv
+import os
 import re
+
+OUTPUT_PATH = "../output/blockchain_out.csv"
 
 VALUE_FOR_LABEL = (
     "//div[normalize-space(text())=$label]"
@@ -19,6 +22,8 @@ class BlockchainSpider(scrapy.Spider):
     allowed_domains = ["blockchain.com"]
 
     async def start(self):
+      self.maybe_write_header()
+
       with open("../output/hash_query_out.csv", newline="\n") as f_sql:
         sql_reader = csv.reader(f_sql, delimiter=',')
         next(sql_reader, None)
@@ -56,7 +61,7 @@ class BlockchainSpider(scrapy.Spider):
 
       self.log_row(meta)
 
-      with open("../output/blockchain_out.csv", "a", newline="\n") as f_write:
+      with open(OUTPUT_PATH, "a", newline="\n") as f_write:
         writer = csv.writer(f_write, delimiter=",")
 
         row = [
@@ -102,7 +107,10 @@ class BlockchainSpider(scrapy.Spider):
         return value
       return float(re.sub(r'[^0-9.]', '', value))
 
-    def maybe_write_header(self, writer):
-      if not self.written_header:
-        writer.writerow(csv_header)
-        self.written_header = True
+    def maybe_write_header(self):
+      # parse() appends, so only write the header when starting a fresh file
+      if os.path.exists(OUTPUT_PATH) and os.path.getsize(OUTPUT_PATH) > 0:
+        return
+
+      with open(OUTPUT_PATH, "w", newline="\n") as f_write:
+        csv.writer(f_write, delimiter=",").writerow(csv_header)

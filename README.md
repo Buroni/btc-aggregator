@@ -31,7 +31,7 @@ run over the whole chain takes many hours.
 
 ## Prerequisites
 
-- Python 3.10 (the checked-in bytecode caches are `cpython-310`).
+- Python 3.10+
 - A Google Cloud project with the BigQuery API enabled and a service account key
   with permission to run BigQuery jobs. The public Bitcoin dataset is readable by
   anyone, but query bytes are billed to your project — `get_block_hashes.sql`
