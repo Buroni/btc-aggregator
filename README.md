@@ -47,9 +47,6 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Dependencies are intentionally unpinned: `google-cloud-bigquery`, `itemadapter`,
-`requests`, `scrapy`.
-
 ### Credentials
 
 `query_block_hashes.py` authenticates through the standard
@@ -88,22 +85,14 @@ Writes `output/hash_query_out.csv`, overwriting any previous run.
 
 ### Stage 2 — block detail from blockchain.com
 
-Scrapy must be started from the directory containing `scrapy.cfg`, because the
-spider reads `../output/hash_query_out.csv` and writes into the current working
-directory:
-
 ```bash
 cd btc_scrape
 scrapy crawl blockchain
 ```
 
-Writes `blockchain_out.csv` inside `btc_scrape/`. The file is opened in append
-mode and no header row is emitted, so delete or move any previous
-`blockchain_out.csv` before re-running, and add the header yourself if you need
-one (the column order is `csv_header` in
-`btc_scrape/btc_scrape/spiders/data.py`).
+Writes to `output/blockchain_out.csv`. Some wrangling will need to be done in `blockchain.py` to resume from the last seen
+hash if the scraper falls over.
 
-Standard Scrapy flags apply, e.g. `scrapy crawl blockchain -L INFO`.
 
 ## Project structure
 
@@ -161,13 +150,3 @@ Written by the spider, no header row. Columns, in order (names come from
 | `version` | Scraped from the same page but kept as the raw string (e.g. `0x1`) |
 | `previous_block_hash`, `merkle_root` | `prev_block` and `mrkl_root` from `https://blockchain.info/block-height/<height>?format=json`, taking the main-chain block |
 | `difficulty_target` | `0x00000000FFFF0000…0000 // difficulty`, i.e. the max target divided by the scraped difficulty |
-
-The scraped values are located by XPath against two hashed CSS class names
-(`row_div_class` and `value_div_class` in `spiders/data.py`). These are generated
-by blockchain.com's styling and will change whenever they redeploy the site; when
-every scraped column comes back empty, those two constants are the first thing to
-update.
-
-The `output/` directory is gitignored and typically holds the query output plus
-dated copies of finished crawls (for example `blockchain_2025_11_10.csv`), which
-are moved and renamed there by hand after a run.
