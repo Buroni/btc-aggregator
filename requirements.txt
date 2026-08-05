@@ -1,0 +1,4 @@
+google-cloud-bigquery
+itemadapter
+requests
+scrapy
